@@ -1,14 +1,15 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Blueprint
 import torch
 from transformers import pipeline
 import requests
 import random
 
-app = Flask(__name__)
+# app = Flask(__name__)
+main = Blueprint('main', __name__)
 
 model_name = "./models/bert-base-uncased-finetuned-emotion"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = pipeline("text-classification", model=model_name,device=device)
+model = pipeline("text-classification", model=model_name, device=device)
 
 
 def predict_sentiment(text):
@@ -24,12 +25,12 @@ def matching(predictions):
     return result
 
 
-@app.route('/')
+@main.route('/')
 def home():
     return render_template("index.html")
 
 
-@app.route('/predict', methods=['POST'])
+@main.route('/predict', methods=['POST'])
 def predict():
     data = request.json
     text = data.get('text', '')
@@ -38,7 +39,7 @@ def predict():
     return jsonify(predictions)
 
 
-@app.route('/random_tweet', methods=['GET'])
+@main.route('/random_tweet', methods=['GET'])
 def random_tweet():
     url = "https://twitter154.p.rapidapi.com/search/search"
     querystring = {
@@ -66,7 +67,3 @@ def random_tweet():
             tweet = new_data[random.randint(0, len(new_data) - 1)] if new_data else None
 
     return jsonify({'tweet': tweet})
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
