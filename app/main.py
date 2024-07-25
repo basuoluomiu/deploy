@@ -3,6 +3,7 @@ import torch
 from transformers import pipeline
 import requests
 import random
+import os
 
 # app = Flask(__name__)
 main = Blueprint('main', __name__)
@@ -10,6 +11,13 @@ main = Blueprint('main', __name__)
 model_name = "./models/bert-base-uncased-finetuned-emotion"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = pipeline("text-classification", model=model_name, device=device)
+
+api_key = os.getenv('API_KEY')
+
+headers = {
+    "x-rapidapi-key": api_key,
+    "x-rapidapi-host": "twitter154.p.rapidapi.com"
+}
 
 
 def predict_sentiment(text):
@@ -52,10 +60,6 @@ def random_tweet():
         "limit": "5",
         "start_date": "2022-01-01",
         "language": "en"
-    }
-    headers = {
-        "x-rapidapi-key": "a13224d3f4msh913f30cb347563bp11fb67jsn51277cdf16e5",
-        "x-rapidapi-host": "twitter154.p.rapidapi.com"
     }
 
     tweet = None
